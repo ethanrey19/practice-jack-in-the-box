@@ -1,18 +1,24 @@
 import exceptions.JackInTheBoxAlreadyClosedException;
 import exceptions.JackInTheBoxCannotCrankException;
 
-import java.util.Random;
-
 public class JackInTheBox {
 
     private int cranks;
 
     private boolean isOpen;
 
+    private RandomWrapper randomWrapper;
+
     public JackInTheBox() {
+      this(new RandomWrapper());
+    }
+
+    public JackInTheBox(RandomWrapper randomWrapper){
+        this.randomWrapper = randomWrapper;
         this.cranks = 0;
         this.isOpen = false;
     }
+
 
     public void crank() {
         if (this.isOpen) {
@@ -22,7 +28,7 @@ public class JackInTheBox {
         playNote();
 
         if (this.cranks >= 3) {
-           if (doesOpen()){
+           if (canOpen()){
                open();
            }
         }
@@ -43,9 +49,10 @@ public class JackInTheBox {
         System.out.println("Closed");
     }
 
-    private Boolean doesOpen(){
-        Random random = new Random();
-        return random.nextInt(10) % 2 == 0;
+    private boolean canOpen(){
+        int random = randomWrapper.nextInt(10);
+        System.out.println(random);
+        return random % 2 == 0;
     }
 
     private void playNote() {
@@ -64,4 +71,7 @@ public class JackInTheBox {
         return isOpen;
     }
 
+    protected RandomWrapper getRandomWrapper() {
+        return this.randomWrapper;
+    }
 }

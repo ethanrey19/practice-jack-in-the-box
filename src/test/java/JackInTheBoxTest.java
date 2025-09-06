@@ -5,30 +5,67 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 class JackInTheBoxTest {
 
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
 
+    private RandomWrapper mockRandomWrapper;
+
+    private JackInTheBox jackInTheBox;
+
     @BeforeEach
     public void setUp() {
         System.setOut(new PrintStream(outputStreamCaptor));
+        mockRandomWrapper = mock(RandomWrapper.class);
+        when(mockRandomWrapper.nextInt(10)).thenReturn(3).thenReturn(3).thenReturn(2).thenReturn(4);
+        jackInTheBox = new JackInTheBox(mockRandomWrapper);
     }
 
+    @Test
+    void constructerCreatesRandomWrapperObject(){
+        jackInTheBox = new JackInTheBox();
+
+        assertNotNull(jackInTheBox.getRandomWrapper());
+    }
 
     @Test
     void crank_shouldIncreaseCranks() {
-        JackInTheBox jackInTheBox = new JackInTheBox();
         jackInTheBox.crank();
 
         assertEquals(1, jackInTheBox.getCranks());
+
+        jackInTheBox.crank();
+
+        assertEquals(2, jackInTheBox.getCranks());
+
+        jackInTheBox.crank();
+
+        assertEquals(3, jackInTheBox.getCranks());
+    }
+
+    @Test
+    void crank_shouldOpenAfter4Times(){
+        when(mockRandomWrapper.nextInt(10)).thenReturn(3).thenReturn(4);
+
+        jackInTheBox.crank();
+        jackInTheBox.crank();
+        jackInTheBox.crank();
+
+        assertEquals(false, jackInTheBox.getOpen());
+
+        jackInTheBox.crank();
+
+        assertEquals(true, jackInTheBox.getOpen());
     }
 
     @Test
     void crank_shouldReturnExceptionIfOpen(){
-        JackInTheBox jackInTheBox = new JackInTheBox();
-
         while(!jackInTheBox.getOpen()){
             jackInTheBox.crank();
         }
@@ -45,8 +82,6 @@ class JackInTheBoxTest {
 
     @Test
     void close_shouldReturnFalseIfClosed() {
-        JackInTheBox jackInTheBox = new JackInTheBox();
-
         while(!jackInTheBox.getOpen()){
             jackInTheBox.crank();
         }
@@ -58,8 +93,6 @@ class JackInTheBoxTest {
 
     @Test
     void close_shouldReturnExceptionIfAlreadyClosed(){
-        JackInTheBox jackInTheBox = new JackInTheBox();
-
         JackInTheBoxAlreadyClosedException exception = assertThrows(JackInTheBoxAlreadyClosedException.class, () -> {
             jackInTheBox.close();
         });
@@ -72,8 +105,6 @@ class JackInTheBoxTest {
 
     @Test
     void open_shouldReturnTrueIfOpen() {
-        JackInTheBox jackInTheBox = new JackInTheBox();
-
         while(!jackInTheBox.getOpen()){
             jackInTheBox.crank();
         }
@@ -83,8 +114,6 @@ class JackInTheBoxTest {
 
     @Test
     void open_shouldOpenAfterClosing(){
-        JackInTheBox jackInTheBox = new JackInTheBox();
-
         while(!jackInTheBox.getOpen()){
             jackInTheBox.crank();
         }
@@ -100,8 +129,6 @@ class JackInTheBoxTest {
 
     @Test
     void getCranks_shouldReturn0AfterClosed(){
-        JackInTheBox jackInTheBox = new JackInTheBox();
-
         while(!jackInTheBox.getOpen()){
             jackInTheBox.crank();
         }
@@ -113,7 +140,6 @@ class JackInTheBoxTest {
 
     @Test
     void playNote_shouldPlayNote(){
-        JackInTheBox jackInTheBox = new JackInTheBox();
         jackInTheBox.crank();
 
         assertEquals("\uD834\uDD1E", outputStreamCaptor.toString().trim());
@@ -121,8 +147,6 @@ class JackInTheBoxTest {
 
     @Test
     void playFullSong_shouldPlayFullSong(){
-        JackInTheBox jackInTheBox = new JackInTheBox();
-
         while(!jackInTheBox.getOpen()){
             jackInTheBox.crank();
         }

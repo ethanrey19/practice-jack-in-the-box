@@ -1,5 +1,12 @@
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Hello world.");
+        JackInTheBox jackInTheBox = new JackInTheBox();
+
+        while(!jackInTheBox.getOpen()){
+            jackInTheBox.crank();
+        }
+
+        jackInTheBox.close();
+
     }
 }
